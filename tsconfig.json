@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "lib": ["es2023", "dom"],
+    "module": "commonjs",
+    "target": "es2022",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "bundler",
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "preserveConstEnums": true,
+    "incremental": true,
+    "composite": true,
+    "declarationMap": true,
+    "experimentalDecorators": false,
+    "jsx": "react-jsx",
+    "types": ["jest", "jest-extended", "node", "@testing-library/jest-dom"],
+    "removeComments": false,
+    "sourceMap": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noUncheckedSideEffectImports": true,
+    "allowUnreachableCode": false,
+    "outDir": "dist"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

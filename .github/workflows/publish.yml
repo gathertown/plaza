@@ -1,0 +1,65 @@
+# Runs only in the public gathertown/plaza repo, where the publisher copies modules/gather-oss to the
+# root and this file lands at .github/workflows/publish.yml. GitHub ignores it in the monorepo because
+# it sits outside the root .github.
+#
+# Publishes to npm when a GitHub release is published. The build job never sees the publish
+# credential, so a dependency's install script can't publish anything.
+
+name: Publish
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          fetch-depth: 0
+      - name: Refuse anything but a sync commit on main
+        env:
+          TAG_SHA: ${{ github.sha }}
+        run: |
+          git merge-base --is-ancestor "$TAG_SHA" origin/main
+          git log -1 --format=%s "$TAG_SHA" | grep -Eq '^Sync from gather-town-v2@[0-9a-f]{7,40}$'
+          git log -1 --format=%s "$TAG_SHA" >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: "24.22.1"
+      - name: Refuse a tag that doesn't match the package version
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: test "$TAG" = "v$(npm pkg get version | tr -d '"')"
+      - run: npm install --ignore-scripts --no-audit --no-fund
+      - run: npx tsc -p tsconfig.json && npx tsc -p tsconfig.esm.json
+      - name: Drop the lint scripts and nx block, which only work in Gather's monorepo
+        run: npm pkg delete scripts.lint scripts.lint:fix nx
+      - run: npm pack --dry-run && npm pack
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: tarball
+          path: "*.tgz"
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: npm-publish
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: "24.22.1"
+          registry-url: "https://registry.npmjs.org"
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: tarball
+      - name: Publish
+        env:
+          PRERELEASE: ${{ github.event.release.prerelease }}
+        run: npm publish ./*.tgz --provenance --access public --tag "$([ "$PRERELEASE" = true ] && echo next || echo latest)"

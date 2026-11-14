@@ -1,0 +1,122 @@
+{
+  "name": "@gathertown/plaza",
+  "version": "0.1.0",
+  "description": "Presenters, MobX helpers and async state for React apps, from Gather.",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "node": "./dist/src/index.js",
+      "import": "./dist/esm/src/index.js",
+      "default": "./dist/src/index.js"
+    },
+    "./mobx": {
+      "types": "./dist/src/mobx/index.d.ts",
+      "node": "./dist/src/mobx/index.js",
+      "import": "./dist/esm/src/mobx/index.js",
+      "default": "./dist/src/mobx/index.js"
+    },
+    "./presenter": {
+      "types": "./dist/src/presenter/index.d.ts",
+      "node": "./dist/src/presenter/index.js",
+      "import": "./dist/esm/src/presenter/index.js",
+      "default": "./dist/src/presenter/index.js"
+    },
+    "./helpers": {
+      "types": "./dist/src/helpers/index.d.ts",
+      "node": "./dist/src/helpers/index.js",
+      "import": "./dist/esm/src/helpers/index.js",
+      "default": "./dist/src/helpers/index.js"
+    },
+    "./testing": {
+      "types": "./dist/src/testing/index.d.ts",
+      "node": "./dist/src/testing/index.js",
+      "import": "./dist/esm/src/testing/index.js",
+      "default": "./dist/src/testing/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist/src/**",
+    "dist/esm/src/**",
+    "!dist/esm/src/**/__tests__/**",
+    "!dist/src/**/__tests__/**",
+    "!dist/src/**/*.d.ts.map",
+    "src/mobx/vendor/LICENSE",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gathertown/plaza.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "lint": "gather2 lint",
+    "lint:fix": "gather2 lint --fix"
+  },
+  "nx": {
+    "targets": {
+      "build:types": {},
+      "build:compile": {
+        "inputs": [
+          "compileGlobals",
+          "{projectRoot}/src/**/*",
+          "{projectRoot}/testHelpers/**/*",
+          "{projectRoot}/tsconfig.json",
+          "{projectRoot}/tsconfig.esm.json",
+          "{projectRoot}/package.json",
+          "{workspaceRoot}/tsconfig.base.json",
+          "{workspaceRoot}/tools/please/src/**/*",
+          {
+            "externalDependencies": [
+              "esbuild",
+              "@typescript/native",
+              "typescript"
+            ]
+          }
+        ],
+        "command": "node ../../tools/please/bin/run compile && tsc -p tsconfig.esm.json --noCheck"
+      }
+    }
+  },
+  "dependencies": {
+    "ramda": "~0.28.0",
+    "type-fest": "~5.6.0"
+  },
+  "peerDependencies": {
+    "mobx": "~7.0.6",
+    "react": "^19.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@swc/core": "~1.15.36",
+    "@swc/jest": "^0.2.39",
+    "@testing-library/dom": "~10.4.1",
+    "@testing-library/jest-dom": "~5.17.0",
+    "@testing-library/react": "~16.3.0",
+    "@types/jest": "~29.5.14",
+    "@types/node": "~24.10.0",
+    "@types/ramda": "~0.28.25",
+    "@types/react": "~19.2.0",
+    "expect-type": "^0.20.0",
+    "jest": "~30.1.3",
+    "jest-environment-jsdom": "~29.7.0",
+    "jest-extended": "~3.2.4",
+    "jest-fail-on-console": "^2.4.2",
+    "mobx": "~7.0.6",
+    "mobx-react-lite": "~5.0.3",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "typescript": "npm:@typescript/typescript6@~6.0.2"
+  },
+  "author": "Gather Presence, Inc.",
+  "license": "MIT"
+}
