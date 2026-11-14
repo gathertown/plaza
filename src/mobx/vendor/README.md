@@ -6,7 +6,7 @@ Rather than carry the dependency, we vendor the two source files it needs.
 
 ## Do not adapt these files
 
-Linters and formatters skip `**/vendor/**` so this copy stays byte-identical to upstream.
+Gather's linters and formatters skip `**/vendor/**` so this copy stays byte-identical to upstream.
 Reformatting them is what makes this directory expensive again.
 
 Behavior that differs from upstream belongs in a wrapper outside this directory.

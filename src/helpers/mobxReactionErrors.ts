@@ -45,7 +45,7 @@ type ThrottleEntry = { lastReportedAt: number; suppressedCount: number }
 // Keyed by reaction name alone, which is the same granularity the reports are grouped at, so the
 // map is bounded by a static set of code identifiers and needs no eviction. Keying on the error
 // message too would distinguish failure modes within one reaction, but messages that interpolate
-// entity IDs mint a key per ID — unbounded on a long-running pod, for a distinction that never
+// entity IDs mint a key per ID (unbounded in a long-running process) for a distinction that never
 // reaches the grouping. The cost is that a loud failure hides a rarer one in the same reaction,
 // visible only as a non-zero `suppressedCount`.
 const throttleEntries = new Map<string, ThrottleEntry>()

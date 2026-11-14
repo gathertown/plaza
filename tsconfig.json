@@ -19,6 +19,7 @@
     "types": ["jest", "jest-extended", "node", "@testing-library/jest-dom"],
     "removeComments": false,
     "sourceMap": true,
+    "inlineSources": true,
     "noUncheckedIndexedAccess": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,

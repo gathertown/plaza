@@ -181,10 +181,6 @@ Plaza is shared with <3 from Gather. It's a collection of internal tools, patter
 
 We recognize this repo isn't optimized for general consumption. We're not too worried about that right now. Issues and PRs may or may not be noticed.
 
-## Duplicated config
-
-The tsconfig files, `jest.config.js` and `testSetup.js` repeat settings that other modules extend. Those come from `tsconfig.base.json`, `jest.config.base.js` and each module's own `testSetup.js`. This package is published, so it can't extend them or read anything else in the monorepo. Generating the copies from the monorepo would be a complicated system, so they're duplicated for now. It might be worth fixing later, but the simple option fits better today.
-
 ## License
 
 MIT

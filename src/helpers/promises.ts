@@ -1,9 +1,7 @@
 import { guaranteedError } from "./errors"
 
 /**
- * Fire-and-forget helper for async operations that should run in the background.
- * This explicitly indicates that the promise is intentionally not awaited, while
- * still handling any errors that occur.
+ * Marks a promise as deliberately not awaited, so a reader knows the missing `await` isn't a bug.
  *
  * @example
  * // Background a promise directly
@@ -12,11 +10,11 @@ import { guaranteedError } from "./errors"
  * // Background a function call
  * fireAndForget(() => expensiveBackgroundWork())
  *
- * // With custom error handling
- * fireAndForget(
- *   riskyCacheUpdate(),
- *   (error) => Logger.warn('Cache update failed', error)
- * )
+ * // Name the failure in the default log line
+ * fireAndForget(riskyCacheUpdate(), 'Cache update failed')
+ *
+ * // With custom error handling, which replaces the default log line
+ * fireAndForget(riskyCacheUpdate(), undefined, (error) => console.warn('Cache update failed', error))
  */
 export const fireAndForget = <T>(
   promise: Promise<T> | (() => Promise<T>),

@@ -168,7 +168,7 @@ You're silencing errors, but you need to initialize the silencing system.
 At the top of the file, inside the test describe block, add this line:
 
     describe('some/test/file', () => {
-      setupErrorSilencing()
+      setUpErrorSilencing()
 
       // rest of test file
     })`)

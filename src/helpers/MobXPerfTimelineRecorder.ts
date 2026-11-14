@@ -73,7 +73,7 @@ export default class MobXPerfTimelineRecorder {
   }
 
   /**
-   * Read all entries in the ring buffer (oldest first). For dump/export in a future PR.
+   * Read all entries in the ring buffer, oldest first.
    */
   public getEntries(): MobXPerfTimelineEntry[] {
     return this.ringBuffer?.getEntries() ?? []
