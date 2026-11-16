@@ -2,39 +2,64 @@
 # root and this file lands at .github/workflows/publish.yml. GitHub ignores it in the monorepo because
 # it sits outside the root .github.
 #
-# Publishes to npm when a GitHub release is published. The build job never sees the publish
-# credential, so a dependency's install script can't publish anything.
+# Publishes to npm when a sync lands a version npm doesn't have yet, then tags it and cuts the GitHub
+# release. The build job never sees the publish credential, so a dependency's install script can't
+# publish anything.
 
 name: Publish
 
 on:
-  release:
-    types: [published]
+  push:
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
 
+# A running publish is never cancelled, but GitHub keeps one pending run, so a third quick sync cancels the
+# pending one. The newest run still publishes the current version because each sync carries the whole tree, and
+# workflow_dispatch re-runs the check by hand.
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
 jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      unpublished: ${{ steps.version.outputs.unpublished }}
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+      - id: version
+        name: Find out whether npm has this version
+        # The registry answers 404 only for a missing version, so a network error fails the job instead of
+        # reading as unpublished.
+        run: |
+          version=$(jq -r .version package.json)
+          status=$(curl -sS -o /dev/null -w '%{http_code}' "https://registry.npmjs.org/@gathertown/plaza/$version")
+          case "$status" in
+            200) unpublished=false ;;
+            404) unpublished=true ;;
+            *) echo "npm registry answered $status for $version" && exit 1 ;;
+          esac
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "unpublished=$unpublished" >> "$GITHUB_OUTPUT"
+          echo "$version unpublished=$unpublished" >> "$GITHUB_STEP_SUMMARY"
+
   build:
+    needs: check
+    if: needs.check.outputs.unpublished == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
-        with:
-          fetch-depth: 0
-      - name: Refuse anything but a sync commit on main
-        env:
-          TAG_SHA: ${{ github.sha }}
+      - name: Refuse anything but a sync commit
         run: |
-          git merge-base --is-ancestor "$TAG_SHA" origin/main
-          git log -1 --format=%s "$TAG_SHA" | grep -Eq '^Sync from gather-town-v2@[0-9a-f]{7,40}$'
-          git log -1 --format=%s "$TAG_SHA" >> "$GITHUB_STEP_SUMMARY"
+          git log -1 --format=%s | grep -Eq '^Sync from gather-town-v2@[0-9a-f]{7,40}$'
+          git log -1 --format=%s >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: "24.22.1"
-      - name: Refuse a tag that doesn't match the package version
-        env:
-          TAG: ${{ github.event.release.tag_name }}
-        run: test "$TAG" = "v$(npm pkg get version | tr -d '"')"
       - run: npm install --ignore-scripts --no-audit --no-fund
       - run: npx tsc -p tsconfig.json && npx tsc -p tsconfig.esm.json
       - name: Drop the lint scripts and nx block, which only work in Gather's monorepo
@@ -46,7 +71,7 @@ jobs:
           path: "*.tgz"
 
   publish:
-    needs: build
+    needs: [check, build]
     runs-on: ubuntu-latest
     environment: npm-publish
     permissions:
@@ -59,7 +84,16 @@ jobs:
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: tarball
-      - name: Publish
+      - run: npm publish ./*.tgz --provenance --access public
+
+  release:
+    needs: [check, publish]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Tag the sync commit and cut the GitHub release
         env:
-          PRERELEASE: ${{ github.event.release.prerelease }}
-        run: npm publish ./*.tgz --provenance --access public --tag "$([ "$PRERELEASE" = true ] && echo next || echo latest)"
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.check.outputs.version }}
+        run: gh release create "v$VERSION" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --generate-notes

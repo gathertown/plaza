@@ -1,6 +1,6 @@
 {
   "name": "@gathertown/plaza",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Presenters, MobX helpers and async state for React apps, from Gather.",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
@@ -34,6 +34,12 @@
       "node": "./dist/src/testing/index.js",
       "import": "./dist/esm/src/testing/index.js",
       "default": "./dist/src/testing/index.js"
+    },
+    "./storybook": {
+      "types": "./dist/src/storybook/index.d.ts",
+      "node": "./dist/src/storybook/index.js",
+      "import": "./dist/esm/src/storybook/index.js",
+      "default": "./dist/src/storybook/index.js"
     },
     "./package.json": "./package.json"
   },

@@ -6,6 +6,7 @@ Presenters, MobX helpers and async state for React apps. Gather builds its web a
 - `@gathertown/plaza/mobx`: `Destructible`, the `@ga` decorators and wrappers around MobX's `reaction` and `autorun`.
 - `@gathertown/plaza`: hooks for reporting errors thrown inside reactions.
 - `@gathertown/plaza/testing`: Jest helpers.
+- `@gathertown/plaza/storybook`: Storybook decorators that swap a presenter for a mock.
 - `@gathertown/plaza/helpers`: other general helpers.
 
 ## Install
@@ -14,7 +15,7 @@ Presenters, MobX helpers and async state for React apps. Gather builds its web a
 npm install @gathertown/plaza
 ```
 
-Plaza needs `mobx` ~7.0.6 as a peer. `react` ^19 is an optional peer, needed only for `/presenter`. The examples below use `observer` from `mobx-react-lite`, and a React app needs a renderer like `react-dom`. Install whichever of these you don't have yet.
+Plaza needs `mobx` ~7.0.6 as a peer. `react` ^19 is an optional peer, needed only for `/presenter` and `/storybook`. The examples below use `observer` from `mobx-react-lite`, and a React app needs a renderer like `react-dom`. Install whichever of these you don't have yet.
 
 ## Decorators
 
